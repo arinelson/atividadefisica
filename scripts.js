@@ -28,12 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
     async function makeBestMove() {
         const difficulty = parseInt(difficultySelect.value);
         const bestMove = await getBestMoveFromAPI(game.fen(), difficulty);
-        game.move(bestMove);
-        board.position(game.fen());
+        if (bestMove) {
+            game.move(bestMove);
+            board.position(game.fen());
+        }
     }
 
     async function getBestMoveFromAPI(fen, difficulty) {
-        const response = await fetch(`https://lichess.org/api/cloud-eval?fen=${encodeURIComponent(fen)}&multiPv=3`);
+        const response = await fetch(`https://lichess.org/api/cloud-eval?fen=${encodeURIComponent(fen)}&multiPv=${difficulty}`);
         const data = await response.json();
         if (data.pvs && data.pvs.length > 0) {
             // Select the best move based on difficulty level
