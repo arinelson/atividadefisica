@@ -1,0 +1,31 @@
+/* Tablet Styles */
+@media (max-width: 1024px) {
+    .game-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .board-container {
+        max-width: 500px;
+    }
+    
+    .controls-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .board-container {
+        max-width: 100%;
+    }
+    
+    .helper-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    button {
+        padding: 15px;
+        font-size: 16px;
+    }
+}

@@ -1,33 +1,54 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Xadrez</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- Include chess.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 </head>
-<body class="bg-gray-100 text-gray-900">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8">Jogo de Xadrez</h1>
-        <div class="flex flex-col items-center">
-            <div id="board" class="mb-4"></div>
-            <div class="mb-4">
-                <label for="difficulty" class="block mb-2">Selecione a Dificuldade:</label>
-                <select id="difficulty" class="p-2 border rounded-lg">
-                    <option value="1">Fácil</option>
-                    <option value="2">Médio</option>
-                    <option value="3">Difícil</option>
-                    <option value="4">Muito Difícil</option>
-                    <option value="5">Impossível</option>
-                </select>
+<body>
+    <div class="container">
+        <!-- Difficulty Selection Screen -->
+        <div id="difficulty-screen">
+            <h1>Chess Game</h1>
+            <div class="difficulty-buttons">
+                <button onclick="setDifficulty('beginner')">Beginner</button>
+                <button onclick="setDifficulty('easy')">Easy</button>
+                <button onclick="setDifficulty('medium')">Medium</button>
+                <button onclick="setDifficulty('hard')">Hard</button>
+                <button onclick="setDifficulty('expert')">Expert</button>
             </div>
-            <button id="startBtn" class="p-2 bg-blue-500 text-white rounded-lg">Iniciar Jogo</button>
+            <button id="start-game" onclick="startGame()">Start Game</button>
+        </div>
+
+        <!-- Game Screen (Initially Hidden) -->
+        <div id="game-screen" class="hidden">
+            <div class="game-container">
+                <div class="board-container">
+                    <div id="chessboard"></div>
+                </div>
+                <div class="controls-container">
+                    <div class="helper-buttons">
+                        <button onclick="undoMove()">Undo Move</button>
+                        <button onclick="getHint()">Get Hint</button>
+                        <button onclick="toggleLegalMoves()">Show Legal Moves</button>
+                        <button onclick="analyzePosition()">Analyze Position</button>
+                        <button onclick="resignGame()">Resign</button>
+                        <button onclick="restartGame()">New Game</button>
+                    </div>
+                    <div class="game-info">
+                        <div id="status"></div>
+                        <div id="move-history"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
-    <script src="scripts.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
 </body>
 </html>
