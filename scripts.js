@@ -25,23 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.setTimeout(makeBestMove, 250);
     }
 
-    function makeBestMove() {
+    async function makeBestMove() {
         const difficulty = parseInt(difficultySelect.value);
-        const bestMove = calculateBestMove(game, difficulty);
+        const bestMove = await getBestMoveFromAPI(game.fen(), difficulty);
         game.move(bestMove);
         board.position(game.fen());
     }
 
-    function calculateBestMove(game, difficulty) {
-        // Simulação de IA simples baseada na dificuldade
-        let possibleMoves = game.ugly_moves();
-        if (difficulty === 0) {
-            return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-        } else {
-            // Implementar lógica de IA mais avançada aqui
-            // Para este exemplo, vamos apenas retornar um movimento aleatório
-            return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    async function getBestMoveFromAPI(fen, difficulty) {
+        const response = await fetch(`https://lichess.org/api/cloud-eval?fen=${encodeURIComponent(fen)}&multiPv=3`);
+        const data = await response.json();
+        if (data.pvs && data.pvs.length > 0) {
+            // Select the best move based on difficulty level
+            const moves = data.pvs.slice(0, difficulty).map(pv => pv.moves.split(' ')[0]);
+            return moves[Math.floor(Math.random() * moves.length)];
         }
+        return null;
     }
 
     function removeGreySquares() {
