@@ -1,91 +1,76 @@
-// Perguntas do questionário
-const perguntas = [
-    { pergunta: "Qual é o seu objetivo principal?", opcoes: ["Ganho de Massa Muscular", "Perda de Peso", "Flexibilidade", "Resistência"] },
-    { pergunta: "Quantas vezes por semana você pode treinar?", opcoes: ["1-2 vezes", "3-4 vezes", "5-7 vezes"] },
-    { pergunta: "Qual é o seu nível de condicionamento físico atual?", opcoes: ["Iniciante", "Intermediário", "Avançado"] },
-    { pergunta: "Qual tipo de treino você prefere?", opcoes: ["Individual", "Em Grupo", "Com Personal Trainer"] },
-    { pergunta: "Quanto tempo você tem disponível para cada treino?", opcoes: ["Menos de 30 minutos", "30-60 minutos", "Mais de 60 minutos"] },
-    { pergunta: "Qual o seu nível de motivação para treinar?", opcoes: ["Baixo", "Médio", "Alto"] },
-    { pergunta: "Você tem alguma lesão ou limitação física?", opcoes: ["Não", "Sim"] },
-    { pergunta: "Qual é a sua idade?", opcoes: ["Menos de 20 anos", "20-40 anos", "Mais de 40 anos"] },
-    { pergunta: "Qual é o seu horário preferido para treinar?", opcoes: ["Manhã", "Tarde", "Noite"] },
-    { pergunta: "Você prefere treinos ao ar livre ou em ambientes fechados?", opcoes: ["Ao Ar Livre", "Ambientes Fechados"] }
-];
+document.addEventListener('DOMContentLoaded', () => {
+    const boardElement = document.getElementById('board');
+    const difficultySelect = document.getElementById('difficulty');
+    const startBtn = document.getElementById('startBtn');
+    
+    let board, game;
 
-let respostas = [];
-let perguntaAtual = 0;
+    function initGame() {
+        game = new Chess();
+        
+        board = Chessboard(boardElement, {
+            draggable: true,
+            position: 'start',
+            onDrop: handleMove,
+            onMouseoutSquare: removeGreySquares,
+            onMouseoverSquare: highlightLegalMoves
+        });
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
-    mostrarPergunta();
-});
+    function handleMove(source, target) {
+        const move = game.move({ from: source, to: target, promotion: 'q' });
 
-function mostrarPergunta() {
-    const quizContainer = document.getElementById('quiz-container');
-    quizContainer.innerHTML = '';
+        if (move === null) return 'snapback';
 
-    if (perguntaAtual < perguntas.length) {
-        const perguntaObj = perguntas[perguntaAtual];
-        const perguntaDiv = document.createElement('div');
-        perguntaDiv.classList.add('question');
+        window.setTimeout(makeBestMove, 250);
+    }
 
-        const perguntaLabel = document.createElement('label');
-        perguntaLabel.textContent = perguntaObj.pergunta;
-        perguntaDiv.appendChild(perguntaLabel);
+    function makeBestMove() {
+        const difficulty = parseInt(difficultySelect.value);
+        const bestMove = calculateBestMove(game, difficulty);
+        game.move(bestMove);
+        board.position(game.fen());
+    }
 
-        perguntaObj.opcoes.forEach(opcao => {
-            const opcaoLabel = document.createElement('label');
-            const opcaoInput = document.createElement('input');
-            opcaoInput.type = 'radio';
-            opcaoInput.name = 'resposta';
-            opcaoInput.value = opcao;
-            opcaoLabel.appendChild(opcaoInput);
-            opcaoLabel.appendChild(document.createTextNode(opcao));
-            perguntaDiv.appendChild(opcaoLabel);
+    function calculateBestMove(game, difficulty) {
+        // Simulação de IA simples baseada na dificuldade
+        let possibleMoves = game.ugly_moves();
+        if (difficulty === 0) {
+            return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        } else {
+            // Implementar lógica de IA mais avançada aqui
+            // Para este exemplo, vamos apenas retornar um movimento aleatório
+            return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        }
+    }
+
+    function removeGreySquares() {
+        $('#board .square-55d63').css('background', '');
+    }
+
+    function highlightLegalMoves(square) {
+        const moves = game.moves({
+            square: square,
+            verbose: true
         });
 
-        const botaoProximo = document.createElement('button');
-        botaoProximo.textContent = 'Próximo';
-        botaoProximo.addEventListener('click', proximaPergunta);
-        perguntaDiv.appendChild(botaoProximo);
+        if (moves.length === 0) return;
 
-        quizContainer.appendChild(perguntaDiv);
-    } else {
-        mostrarResultado();
-    }
-}
+        highlightSquare(square);
 
-function proximaPergunta() {
-    const respostaSelecionada = document.querySelector('input[name="resposta"]:checked');
-    if (respostaSelecionada) {
-        respostas.push(respostaSelecionada.value);
-        perguntaAtual++;
-        mostrarPergunta();
-    } else {
-        alert('Por favor, selecione uma resposta.');
-    }
-}
-
-function mostrarResultado() {
-    const quizContainer = document.getElementById('quiz-container');
-    quizContainer.innerHTML = '';
-
-    // Lógica para determinar o estilo de treino com base nas respostas
-    let resultado = '';
-
-    if (respostas[0] === 'Ganho de Massa Muscular' && respostas[2] === 'Avançado') {
-        resultado = 'Seu estilo de treino é Musculação Avançada!';
-    } else if (respostas[0] === 'Perda de Peso' && respostas[1] === '5-7 vezes') {
-        resultado = 'Seu estilo de treino é Cardio Intenso!';
-    } else if (respostas[0] === 'Flexibilidade' && respostas[3] === 'Individual') {
-        resultado = 'Seu estilo de treino é Yoga Individual!';
-    } else if (respostas[0] === 'Resistência' && respostas[4] === 'Mais de 60 minutos') {
-        resultado = 'Seu estilo de treino é Treinamento de Resistência!';
-    } else {
-        resultado = 'Seu estilo de treino é uma combinação personalizada!';
+        moves.forEach(move => highlightSquare(move.to));
     }
 
-    const resultadoDiv = document.createElement('div');
-    resultadoDiv.classList.add('resultado');
-    resultadoDiv.textContent = resultado;
-    quizContainer.appendChild(resultadoDiv);
-}
+    function highlightSquare(square) {
+        const squareEl = $('#board .square-' + square);
+
+        const background = '#a9a9a9';
+        if (squareEl.hasClass('black-3c85d') === true) {
+            squareEl.css('background', '#696969');
+        } else {
+            squareEl.css('background', background);
+        }
+    }
+
+    startBtn.addEventListener('click', initGame);
+});
